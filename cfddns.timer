@@ -1,0 +1,9 @@
+[Unit]
+Description=Activate CFDDNS script daily
+
+[Timer]
+OnBootSec=1m
+OnUnitActiveSec=1d
+
+[Install]
+WantedBy=timers.target

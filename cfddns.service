@@ -1,5 +1,5 @@
 [Unit]
-Description=cfddns a simple python script to configure CloudFlareAPI with current IP Address of WAN Interface
+Description=CloudFlare DDNS Script
 
 [Service]
 ExecStart=/usr/sbin/cfddns.py
