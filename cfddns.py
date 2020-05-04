@@ -5,9 +5,10 @@ import socket
 import fcntl
 import json
 import struct
+import sys
 
 conf = configparser.ConfigParser()
-conf.read('cfddns.conf')
+conf.read('/etc/cfddns/cfddns.conf')
 conf = conf['DEFAULT']
 
 class Config:
@@ -37,10 +38,10 @@ def get_ip_address(ifname):
 def token_valid():
     r = requests.get(f"{Config.cfapi}user/tokens/verify",headers=headers)
     if not r.json()['success']:
-        print(f"{FAIL} Token: {r.status_code}: {r.json()['messages']}")
+        sys.stderr.write(f"{FAIL} Token: {r.status_code}: {r.json()['messages']} \n")
         return False
     else:
-        print(f"{OK} Token: {r.status_code}: {r.json()['messages']}")
+        sys.stdout.write(f"{OK} Token: {r.status_code}: {r.json()['messages']} \n")
         return True
 
 def get_zone_id():
@@ -50,7 +51,7 @@ def get_zone_id():
         if zone['name'] == Config.domain:
             domain_found = True
     if domain_found:
-        print(f"{OK} Domain found [{zone['name']}] id is {zone['id']}")
+        sys.stdout.write(f"{OK} Domain found [{zone['name']}] id is {zone['id']}\n")
         return zone['id']
 
 def list_zone_records(id):
@@ -71,20 +72,20 @@ def update_cloud_flare(zone_id,record_id,ip_addr):
         headers=headers
     )
     if(r.json()['result']['success']):
-        print(f"{OK} IP Successfully Changed")
+        sys.stdout.write(f"{OK} IP Successfully Changed \n")
         exit(0)
     else:
-        print(f"{FAIL} Unable to change IP")
+        sys.stderr.write(f"{FAIL} Unable to change IP \n")
         exit(1)
     
         
 if __name__ == "__main__":
     ip_address = get_ip_address(Config.interface)
     if Config.changeme == True:
-        print("You need to fill in the settings for the script to work")
+        sys.stdout.write("You need to fill in the settings for the script to work \n")
         exit(1)
     if not token_valid():
-        print("There is an issue with the api token.")
+        sys.stderr.write("There is an issue with the api token. \n")
         exit(1)
     zone_id = get_zone_id()
     records = list_zone_records(zone_id)['result']
@@ -92,10 +93,10 @@ if __name__ == "__main__":
         if record['name'] == "loganfamily.us" and record['type'] == "A":
             record_id = record['id']
             if record['content'] == ip_address:
-                print(f"{OK} IP Address matches [No Change]")
+                sys.stdout.write(f"{OK} IP Address matches [No Change] \n")
                 exit(0)
             else:
-                print(f"{CHANGE} IP Address does not match [Updating...]")
+                sys.stdout.write(f"{CHANGE} IP Address does not match [Updating...] \n")
                 
     update_cloud_flare(zone_id,record_id,ip_address)
 
