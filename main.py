@@ -1,10 +1,24 @@
 #!/usr/bin/python3
-from config import Config
+import configparser
 import requests
 import socket
 import fcntl
 import json
 import struct
+
+config = configparser.ConfigParser()
+
+class Config():
+    """
+    You need to fill in the following details for this script to work correctly.
+    https://api.cloudflare.com/#dns-records-for-a-zone-update-dns-record
+    """
+    changeme = False
+    key = config['key']
+    email = config['email']
+    domain = config['domain']
+    interface = config['interface']
+    cfapi = config['cfurl']
 
 OK = "[\033[92m OK \033[0m] "
 FAIL = "[\033[91m FAIL \033[0m] "

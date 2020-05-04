@@ -1,10 +1,22 @@
 #!/usr/bin/python3
-from config import Config
+import configparser
 import requests
 import socket
 import fcntl
 import json
 import struct
+
+conf = configparser.ConfigParser()
+conf.read('cfddns.conf')
+conf = conf['DEFAULT']
+
+class Config:
+    changeme = conf['changeme']
+    key = conf['key']
+    email = conf['email']
+    domain = conf['domain']
+    interface = conf['interface']
+    cfapi = conf['cfurl']
 
 OK = "[\033[92m OK \033[0m] "
 FAIL = "[\033[91m FAIL \033[0m] "
@@ -19,7 +31,7 @@ def get_ip_address(ifname):
     return socket.inet_ntoa(fcntl.ioctl(
         s.fileno(),
         0x8915,  # SIOCGIFADDR
-        struct.pack('256s', bytes(ifname[:15], 'utf-8'))
+        struct.pack('256s', bytes(ifname[:15],'utf-8'))
     )[20:24])
 
 def token_valid():
