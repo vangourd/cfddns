@@ -6,7 +6,6 @@ You can setup a Free Account to manage your domains allowing you to do this.
 
 ## Requires:
 
-- Python3
 - Free CloudFlare Account
 
 I had to setup the following permissions in my CF account for this to work. I KNOW that this is more than required but since this is a hobby project and I'm not as concerned about narrowing down the permissions.
