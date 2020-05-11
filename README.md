@@ -1,12 +1,11 @@
 # CFDDNS.py
 
-Very simple script that pulls an IP off of a selected interface and then modifies an existing A record on CloudFlare. 
+Very simple script that pulls an IP off of a selected interface or queries a web API and then modifies an existing A record on CloudFlare. 
 
 You can setup a Free Account to manage your domains allowing you to do this. 
 
 ## Requires:
 
-- RHEL 7.x (Should work on any *nix* system but I can't verify.)
 - Python3
 - Free CloudFlare Account
 
@@ -14,7 +13,18 @@ I had to setup the following permissions in my CF account for this to work. I KN
 
 Account.Access: Audit Logs, Account.Logs, Account.Rule Policies, Account.Account Filter Lists, Account.IP Prefixes: BGP On Demand, Account.Teams, Account.Access: Organizations, Identity Providers, and Groups, Account.Workers KV Storage, Account.Workers Scripts, Account.Load Balancing: Monitors And Pools, Account.Account Firewall Access Rules, Account.DNS Firewall, Account.Stream, Account.Billing, Account.Account Settings, User.Memberships, User.User Details, Zone.Zone Settings, Zone.Zone, Zone.Workers Routes, Zone.SSL and Certificates, Zone.Logs, Zone.Page Rules, Zone.Load Balancers, Zone.Firewall Services, Zone.DNS, Zone.Analytics, Zone.Access: Apps and Policies
 
-## Setup:
+## Setup (Windows):
+### EXE not requiring Python3
+Download from [Releases](https://github.com/vangourd/cfddns/releases)
+Unzip and cd into `cfddns` 
+Run from admin powershell `/dist/install/install.exe`
+
+Frequency can be modified from the **Task Scheduler**
+
+### Source:
+Run `./install.py` from Administrative powershell
+
+## Setup (Linux):
 
 `git clone https://github.com/vangourd/cfddns`
 
