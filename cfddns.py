@@ -1,14 +1,21 @@
 #!/usr/bin/python3
+import platform
+platform = platform.system()
 import configparser
 import requests
 import socket
-import fcntl
+if platform == "Linux":
+    import fcntl
+import re
 import json
 import struct
 import sys
 
 conf = configparser.ConfigParser()
-conf.read('/etc/cfddns/cfddns.conf')
+if platform == "Windows":
+    conf.read('C:\\ProgramData\\cfddns\\cfddns.conf')
+else:
+    conf.read('/etc/cfddns/cfddns.conf')
 conf = conf['DEFAULT']
 
 class Config:
@@ -28,12 +35,20 @@ headers = {
 }
 
 def get_ip_address(ifname):
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    return socket.inet_ntoa(fcntl.ioctl(
-        s.fileno(),
-        0x8915,  # SIOCGIFADDR
-        struct.pack('256s', bytes(ifname[:15],'utf-8'))
-    )[20:24])
+    if platform == "Linux":
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        return str(socket.inet_ntoa(fcntl.ioctl(
+            s.fileno(),
+            0x8915,  # SIOCGIFADDR
+            struct.pack('256s', bytes(ifname[:15],'utf-8'))
+        )[20:24]))
+    else:
+        sys.stdout.write(f"{OK} Windows detected: Falling back to web based IP determination")
+        r = requests.get("http://checkip.dyndns.org/")
+        m = re.search('(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})',r.text)
+        print(m[0])
+        return m[0]
+        
 
 def token_valid():
     r = requests.get(f"{Config.cfapi}user/tokens/verify",headers=headers)
@@ -71,22 +86,22 @@ def update_cloud_flare(zone_id,record_id,ip_addr):
         data=data,
         headers=headers
     )
-    if(r.json()['result']['success']):
+    if(r.json()['success']):
         sys.stdout.write(f"{OK} IP Successfully Changed \n")
-        exit(0)
+        sys.exit(0)
     else:
         sys.stderr.write(f"{FAIL} Unable to change IP \n")
-        exit(1)
+        sys.exit(1)
     
         
 if __name__ == "__main__":
     ip_address = get_ip_address(Config.interface)
     if Config.changeme == True:
         sys.stdout.write("You need to fill in the settings for the script to work \n")
-        exit(1)
+        sys.exit(1)
     if not token_valid():
         sys.stderr.write("There is an issue with the api token. \n")
-        exit(1)
+        sys.exit(1)
     zone_id = get_zone_id()
     records = list_zone_records(zone_id)['result']
     for record in records:
@@ -94,7 +109,7 @@ if __name__ == "__main__":
             record_id = record['id']
             if record['content'] == ip_address:
                 sys.stdout.write(f"{OK} IP Address matches [No Change] \n")
-                exit(0)
+                sys.exit(0)
             else:
                 sys.stdout.write(f"{CHANGE} IP Address does not match [Updating...] \n")
                 
